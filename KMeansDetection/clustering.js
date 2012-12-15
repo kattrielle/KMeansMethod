@@ -12,8 +12,8 @@ $(document).ready(function() {
     $(document).mouseup( MouseDrawEnd );
     $("#clearButton").click( ClearDrawingArea );
     $("#addButton").click( AddPicture );
-    $("#makeButton").click();
-    $("resetButton").click();
+    $("#makeButton").click( Clustering );
+    $("resetButton").click( ResetData );
     
     function MouseDrawStart( event )
     {
@@ -42,17 +42,18 @@ $(document).ready(function() {
     
     function AddPicture( )
     {
-        
-        if ( classes[currentClass] != undefined ) {
-            var classExamples = classes[currentClass];
-        } else classExamples = [];
-        classExamples.push( MakingPixelMap() );
-        classes[currentClass] = classExamples;
-        $("#classNameInput").val("");
+        pictures.push(ImageField.toDataURL() );
         ClearDrawingArea();
     }
     
-    function MakingPixelMap( )
+    function ResetData( )
+    {
+        pictures = [];
+        ClearDrawingArea();
+        $("#numberOfClusters").val("");
+    }
+    
+    function MakingPixelMap( pict )
     {
         var map = [];
         var pixelMap = ctx.getImageData(0, 0, imageField.width, imageField.height).data;
@@ -66,5 +67,102 @@ $(document).ready(function() {
         return map;
     }
     
+    function Clustering( )
+    {
+        var num = $("#numberOfClusters").val();
+        var clusters = {};
+        var clusterCenters = [];
+        var newClusters = {};
+        if (num == undefined ) {
+            return;
+        }
+        if (num > pictures.length) {
+            return;
+        }
+        clusters = CreateClusterParts(num);
+        while (true) { //Написать условие!!!
+            clusterCenters = CountCenters( clusters );
+            newClusters = RedefineClusters( clusters, clusterCenters );
+        }
+        //Вывод картинок!!!
+    }
+    
+    function RedefineClusters( clusters, centers )
+    {
+        var newClusters = {};
+        var closestCluster;
+        var distances = [];
+        $.each( clusters, function(clusterNum, cluster)
+        {
+            $.each(cluster, function(index, pict)
+            {
+                for (var i=1; i< centers.length; i++ ) {
+                    distances[i] = EuclideanDistance(pict[2], centers[i]);
+                }
+                closestCluster = FindMin( distances );
+                newClusters[closestCluster].push( pict );
+            });
+        });
+    }
+    
+    function FindMin( distance )
+    {
+        var min = distance[1];
+        var num = 1;
+        for (var i=2; i<distance.length; i++) {
+            if (distance[i] < min ) {
+                min = distance[i];
+                num = i;
+            }
+        }
+        return num;
+    }
+    
+    function EuclideanDistance( map1, map2 )
+    {
+        var sum = 0;
+        for( var i=0; i<imageField.height; i++)
+            for( var j=0; j<imageField.width; j++) {
+                sum+= Math.pow(map1[i][j]-map2[i][j], 2);
+            }
+        return Math.sqrt(sum);
+    }
+    
+    function CountCenters ( clusters )
+    {
+        var centers = [];
+        $.each( clusters , function(clusterNum, cluster)
+        {
+            var cntr = [];
+            var pictureLength = cluster[1][2].length;
+            for (var i=0; i<pictureLength; i++)
+                cntr.push(0);
+            $.each( cluster, function(index, pict)
+            {
+                for (var i=0; i< pictureLength; i++) {
+                    cntr[i] += pict[2][i];
+                }
+            });
+            for (var i=0; i<pictureLength; i++ )
+                cntr[i] /= cluster.length;
+            centers[clusterNum] = cntr;
+        });
+        return centers;
+    }
+    
+    function CreateClusterParts( num )
+    {
+        var clusters = {};
+        var clstr = {};
+        for (var i=0; i < pictures.length; i++) {
+            clstr = clusters[ i % num + 1 ];
+            clstr.push( {
+                1:pictures[i], 
+                2:MakingPixelMap( pictures[i] )
+            } );
+            clusters[ i % num + 1 ] = clstr;
+        }
+        return clusters;
+    }
 }
 );
