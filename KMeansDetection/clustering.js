@@ -13,24 +13,24 @@ $(document).ready(function() {
     $("#clearButton").click( ClearDrawingArea );
     $("#addButton").click( AddPicture );
     $("#makeButton").click( Clustering );
-    $("resetButton").click( ResetData );
+    $("#resetButton").click( ResetData );
     
     function MouseDrawStart( event )
     {
-        MouseFlag = true;
+        mouseFlag = true;
         ctx.fillRect(event.offsetX, event.offsetY, 5, 5);
     }
     
     function MouseDraw( event )
     {
-        if (MouseFlag) {
+        if (mouseFlag) {
             ctx.fillRect(event.offsetX, event.offsetY, 5, 5);
         }
     }
     
     function MouseDrawEnd( event )
     {
-        MouseFlag = false;
+        mouseFlag = false;
     }
     
     function ClearDrawingArea()
@@ -42,7 +42,7 @@ $(document).ready(function() {
     
     function AddPicture( )
     {
-        pictures.push(ImageField.toDataURL() );
+        pictures.push(imageField.toDataURL() );
         ClearDrawingArea();
     }
     
@@ -73,7 +73,9 @@ $(document).ready(function() {
         var clusters = {};
         var clusterCenters = [];
         var newClusters = {};
-        var MoveFlag = ruet;
+        var MoveFlag = true;
+        var closestCluster;
+        var distances = [];
         if (num == undefined ) {
             return;
         }
@@ -81,34 +83,34 @@ $(document).ready(function() {
             return;
         }
         clusters = CreateClusterParts(num);
-        while (true) { //Написать условие!!!
+       /* while (MoveFlag) { //Написать условие!!!
+            MoveFlag = false;
             clusterCenters = CountCenters( clusters );
-            newClusters = RedefineClusters( clusters, clusterCenters );
-            //Где и как переприсвоить кластеры?
-        }
+            newClusters = {};
+            $.each( clusters, function(clusterNum, cluster)
+            {
+                $.each(cluster, function(index, pict)
+                {
+                    for (var i=1; i< clusterCenters.length; i++ ) {
+                        distances[i] = EuclideanDistance(pict[2], clusterCenters[i]);
+                    }
+                    closestCluster = FindMin( distances );
+                    if ( closestCluster != clusterNum ) {
+                        MoveFlag = true;
+                    }
+                    newClusters[closestCluster].push( pict );
+                });
+            }); 
+            clusters = newClusters;
+        } */
         ShowPictures( clusters );
     }
     
     function ShowPictures( clusters )
     {
-        
-    }
-    
-    function RedefineClusters( clusters, centers )
-    {
-        var newClusters = {};
-        var closestCluster;
-        var distances = [];
-        $.each( clusters, function(clusterNum, cluster)
+        $.each(clusters, function( index, clstr)
         {
-            $.each(cluster, function(index, pict)
-            {
-                for (var i=1; i< centers.length; i++ ) {
-                    distances[i] = EuclideanDistance(pict[2], centers[i]);
-                }
-                closestCluster = FindMin( distances );
-                newClusters[closestCluster].push( pict );
-            });
+            $("#outputDiv").append( index );
         });
     }
     
@@ -163,6 +165,9 @@ $(document).ready(function() {
         var clstr = {};
         for (var i=0; i < pictures.length; i++) {
             clstr = clusters[ i % num + 1 ];
+            if (clstr == undefined ) {
+                clstr ={};
+            }
             clstr.push( {
                 1:pictures[i], 
                 2:MakingPixelMap( pictures[i] )
