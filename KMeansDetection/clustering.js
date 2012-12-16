@@ -73,6 +73,7 @@ $(document).ready(function() {
         var clusters = {};
         var clusterCenters = [];
         var newClusters = {};
+        var MoveFlag = ruet;
         if (num == undefined ) {
             return;
         }
@@ -83,8 +84,14 @@ $(document).ready(function() {
         while (true) { //Написать условие!!!
             clusterCenters = CountCenters( clusters );
             newClusters = RedefineClusters( clusters, clusterCenters );
+            //Где и как переприсвоить кластеры?
         }
-        //Вывод картинок!!!
+        ShowPictures( clusters );
+    }
+    
+    function ShowPictures( clusters )
+    {
+        
     }
     
     function RedefineClusters( clusters, centers )
