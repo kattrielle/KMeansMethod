@@ -12,7 +12,7 @@ $(document).ready(function() {
     $(document).mouseup( MouseDrawEnd );
     $("#clearButton").click( ClearDrawingArea );
     $("#addButton").click( AddPicture );
-    $("#makeButton").click( Clustering );
+    $("#clusteringForm").submit( Clustering );
     $("#resetButton").click( ResetData );
     
     function MouseDrawStart( event )
@@ -70,19 +70,16 @@ $(document).ready(function() {
     function Clustering( )
     {
         var num = $("#numberOfClusters").val();
-        var clusters = {};
+        var clusters;
         var clusterCenters = [];
         var newClusters = {};
         var MoveFlag = true;
         var closestCluster;
         var distances = [];
-        if (num == undefined ) {
-            return;
-        }
         if (num > pictures.length) {
             return;
         }
-        clusters = CreateClusterParts(num);
+        var clusters = CreateClusterParts(num);
        /* while (MoveFlag) { //Написать условие!!!
             MoveFlag = false;
             clusterCenters = CountCenters( clusters );
@@ -104,6 +101,7 @@ $(document).ready(function() {
             clusters = newClusters;
         } */
         ShowPictures( clusters );
+        return false;
     }
     
     function ShowPictures( clusters )
@@ -163,15 +161,16 @@ $(document).ready(function() {
     {
         var clusters = {};
         var clstr = {};
+        var index = 1;
         for (var i=0; i < pictures.length; i++) {
             clstr = clusters[ i % num + 1 ];
             if (clstr == undefined ) {
                 clstr ={};
             }
-            clstr.push( {
+            clstr[ index ] = {
                 1:pictures[i], 
-                2:MakingPixelMap( pictures[i] )
-            } );
+                2:MakingPixelMap( pictures[i] ) };
+            index++;
             clusters[ i % num + 1 ] = clstr;
         }
         return clusters;
