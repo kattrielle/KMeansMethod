@@ -73,15 +73,15 @@ $(document).ready(function() {
         var clusters;
         var clusterCenters = [];
         var newClusters = {};
-        var MoveFlag = true;
+        var moveFlag = true;
         var closestCluster;
         var distances = [];
         if (num > pictures.length) {
             return;
         }
         var clusters = CreateClusterParts(num);
-       /* while (MoveFlag) { //Написать условие!!!
-            MoveFlag = false;
+        while (moveFlag) { //Написать условие!!!
+            moveFlag = false;
             clusterCenters = CountCenters( clusters );
             newClusters = {};
             $.each( clusters, function(clusterNum, cluster)
@@ -93,13 +93,13 @@ $(document).ready(function() {
                     }
                     closestCluster = FindMin( distances );
                     if ( closestCluster != clusterNum ) {
-                        MoveFlag = true;
+                        moveFlag = true;
                     }
                     newClusters[closestCluster].push( pict );
                 });
             }); 
             clusters = newClusters;
-        } */
+        }
         ShowPictures( clusters );
         return false;
     }
@@ -109,6 +109,10 @@ $(document).ready(function() {
         $.each(clusters, function( index, clstr)
         {
             $("#outputDiv").append( index );
+            $.each( clstr, function(num,picture)
+            {
+                $("#outputDiv").append("<img src="+picture[1]+">");
+            })
         });
     }
     
@@ -128,9 +132,8 @@ $(document).ready(function() {
     function EuclideanDistance( map1, map2 )
     {
         var sum = 0;
-        for( var i=0; i<imageField.height; i++)
-            for( var j=0; j<imageField.width; j++) {
-                sum+= Math.pow(map1[i][j]-map2[i][j], 2);
+        for( var i=0; i<map1.length; i++) {
+                sum+= Math.pow(map1[i]-map2[i], 2);
             }
         return Math.sqrt(sum);
     }
