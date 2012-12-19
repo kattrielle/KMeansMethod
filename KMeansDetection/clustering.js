@@ -69,38 +69,45 @@ $(document).ready(function() {
     
     function Clustering( )
     {
-        var num = $("#numberOfClusters").val();
-        var clusters;
-        var clusterCenters = [];
-        var newClusters = {};
-        var moveFlag = true;
-        var closestCluster;
-        var distances = [];
-        if (num > pictures.length) {
-            return;
-        }
-        var clusters = CreateClusterParts(num);
-        while (moveFlag) { //Написать условие!!!
-            moveFlag = false;
-            clusterCenters = CountCenters( clusters );
-            newClusters = {};
-            $.each( clusters, function(clusterNum, cluster)
-            {
-                $.each(cluster, function(index, pict)
+        try {
+            var num = $("#numberOfClusters").val();
+            var clusters;
+            var clusterCenters = [];
+            var newClusters = {};
+            var moveFlag = true;
+            var closestCluster;
+            var distances = [];
+            if (num > pictures.length) {
+                return;
+            }
+            var clusters = CreateClusterParts(num);
+            while (moveFlag) { //Написать условие!!!
+                moveFlag = false;
+                clusterCenters = CountCenters( clusters );
+                newClusters = {};
+                $.each( clusters, function(clusterNum, cluster)
                 {
-                    for (var i=1; i< clusterCenters.length; i++ ) {
-                        distances[i] = EuclideanDistance(pict[2], clusterCenters[i]);
-                    }
-                    closestCluster = FindMin( distances );
-                    if ( closestCluster != clusterNum ) {
-                        moveFlag = true;
-                    }
-                    newClusters[closestCluster].push( pict );
-                });
-            }); 
-            clusters = newClusters;
+                    $.each(cluster, function(index, pict)
+                    {
+                        for (var i=1; i< clusterCenters.length; i++ ) {
+                            distances[i] = EuclideanDistance(pict[2], clusterCenters[i]);
+                        }
+                        closestCluster = FindMin( distances );
+                        if ( closestCluster != clusterNum ) {
+                            moveFlag = true;
+                        }
+                        newClusters[closestCluster].push( pict );
+                    });
+                }); 
+                clusters = newClusters;
+            }
+            ShowPictures( clusters );
         }
-        ShowPictures( clusters );
+        catch (err) {
+            console.log( err );
+            console.log( err.message );
+            console.log( err.stack );
+        }
         return false;
     }
     
@@ -133,31 +140,38 @@ $(document).ready(function() {
     {
         var sum = 0;
         for( var i=0; i<map1.length; i++) {
-                sum+= Math.pow(map1[i]-map2[i], 2);
-            }
+            sum+= Math.pow(map1[i]-map2[i], 2);
+        }
         return Math.sqrt(sum);
     }
     
     function CountCenters ( clusters )
     {
-        var centers = [];
-        $.each( clusters , function(clusterNum, cluster)
-        {
-            var cntr = [];
-            var pictureLength = cluster[1][2].length;
-            for (var i=0; i<pictureLength; i++)
-                cntr.push(0);
-            $.each( cluster, function(index, pict)
+        try {
+            var centers = [];
+            $.each( clusters , function(clusterNum, cluster)
             {
-                for (var i=0; i< pictureLength; i++) {
-                    cntr[i] += pict[2][i];
-                }
+                var cntr = [];
+                var pictureLength = imageField.height * imageField.width;
+                for (var i=0; i<pictureLength; i++)
+                    cntr.push(0);
+                $.each( cluster, function(index, pict)
+                {
+                    for (var i=0; i< pictureLength; i++) {
+                        cntr[i] += pict[2][i];
+                    }
+                });
+                for (var i=0; i<pictureLength; i++ )
+                    cntr[i] /= cluster.length;
+                centers[clusterNum] = cntr;
             });
-            for (var i=0; i<pictureLength; i++ )
-                cntr[i] /= cluster.length;
-            centers[clusterNum] = cntr;
-        });
-        return centers;
+            return centers;
+        }
+        catch ( err ) {
+            console.log( err );
+            console.log( err.message );
+            console.log( err.stack );
+        }
     }
     
     function CreateClusterParts( num )
@@ -172,7 +186,8 @@ $(document).ready(function() {
             }
             clstr[ index ] = {
                 1:pictures[i], 
-                2:MakingPixelMap( pictures[i] ) };
+                2:MakingPixelMap( pictures[i] )
+            };
             index++;
             clusters[ i % num + 1 ] = clstr;
         }
