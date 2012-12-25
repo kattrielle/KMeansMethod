@@ -56,7 +56,12 @@ $(document).ready(function() {
     function MakingPixelMap( pict )
     {
         var map = [];
-        var pixelMap = ctx.getImageData(0, 0, imageField.width, imageField.height).data;
+        var CNV = document.getElementById('testCanvas');
+        var CNVctx = CNV.getContext('2d');
+        var image = new Image();
+        image.src = pict;
+        CNVctx.drawImage(image, 0, 0);
+        var pixelMap = CNVctx.getImageData(0, 0, CNV.width, CNV.height).data;
         for (var i=0; i < pixelMap.length; i+=4) {
             if (pixelMap[i] == 255 && pixelMap[i+1] == 255 && pixelMap[i+2] == 255) { 
                 map.push(0);
