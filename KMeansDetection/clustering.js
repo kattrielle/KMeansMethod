@@ -190,7 +190,7 @@ $(document).ready(function() {
     function CreateClusterParts( num )
     {
         var clusters = [];
-        var clstr = {};
+        var clstr;
         for (var i=0; i < pictures.length; i++) {
             clstr = clusters[ i % num ];
             if (clstr == undefined) {
