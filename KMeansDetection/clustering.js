@@ -51,6 +51,7 @@ $(document).ready(function() {
         pictures = [];
         ClearDrawingArea();
         $("#numberOfClusters").val("");
+        $("#outputDiv").text("");
     }
     
     function MakingPixelMap( pict )
@@ -75,6 +76,7 @@ $(document).ready(function() {
     function Clustering( )
     {
         try {
+            $("#outputDiv").text("");
             var num = $("#numberOfClusters").val();
             var clusterList;
             var clusterCenters = [];
@@ -126,16 +128,17 @@ $(document).ready(function() {
             $("#outputDiv").append( index );
             $.each( clstr, function(num,picture)
             {
-                $("#outputDiv").append("<img src="+picture["src"]+">");
+                $("#outputDiv").append("<img src="+picture["src"]+
+                    " class=drawing-area>");
             })
         });
     }
     
     function FindMin( distance )
     {
-        var min = distance[1];
-        var num = 1;
-        for (var i=2; i<distance.length; i++) {
+        var min = distance[0];
+        var num = 0;
+        for (var i=1; i<distance.length; i++) {
             if (distance[i] < min ) {
                 min = distance[i];
                 num = i;
